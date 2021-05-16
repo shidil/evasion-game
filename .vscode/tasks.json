@@ -1,0 +1,104 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+          "label": "clean",
+          "type": "shell",
+          "command": "rm -rf build/bin"
+        },
+        {
+          "label": "cmake-prepare-debug",
+          "type": "process",
+          "command": "cmake",
+          "args": [
+            "..",
+            "-G",
+            "Unix Makefiles",
+            "-DCMAKE_BUILD_TYPE=Debug",
+          ],
+          "options": {
+            "cwd": "build",
+          },
+          "dependsOn": ["clean"]
+        },
+        {
+          "label": "cmake-build-debug",
+          "type": "process",
+          "command": "cmake",
+          "args": [
+            "--build",
+            "."
+          ],
+          "dependsOn": ["cmake-prepare-debug"],
+          "problemMatcher": [
+              "$gcc"
+          ],
+          "options": {
+            "cwd": "build",
+          }
+        },
+        {
+            "label": "make-build-debug",
+            "type": "process",
+            "command": "make",
+            "args": [
+                "PLATFORM=PLATFORM_DESKTOP",
+                "BUILD_MODE=DEBUG"
+            ],
+            "windows": {
+                "command": "C:/raylib/mingw/bin/mingw32-make.exe",
+                "args": [
+                    "RAYLIB_PATH=C:/raylib/raylib",
+                    "PROJECT_NAME=${fileBasenameNoExtension}",
+                    "OBJS=${fileBasenameNoExtension}.c",
+                    "BUILD_MODE=DEBUG"
+                ],
+            },
+            "osx": {
+                "args": [
+                    "RAYLIB_PATH=<path_to_raylib>/raylib",
+                    "PROJECT_NAME=${fileBasenameNoExtension}",
+                    "OBJS=${fileBasenameNoExtension}.c",
+                    "BUILD_MODE=DEBUG"
+                ],
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": ["clean"]
+        },
+        {
+            "label": "make-build-release",
+            "type": "process",
+            "command": "make",
+            "args": [
+                "PLATFORM=PLATFORM_DESKTOP",
+            ],
+            "windows": {
+                "command": "C:/raylib/mingw/bin/mingw32-make.exe",
+                "args": [
+                    "RAYLIB_PATH=C:/raylib/raylib",
+                    "PROJECT_NAME=${fileBasenameNoExtension}",
+                    "OBJS=${fileBasenameNoExtension}.c"
+                ],
+            },
+            "osx": {
+                "args": [
+                    "RAYLIB_PATH=<path_to_raylib>/raylib",
+                    "PROJECT_NAME=${fileBasenameNoExtension}",
+                    "OBJS=${fileBasenameNoExtension}.c"
+                ],
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
