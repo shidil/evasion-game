@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "evasion.hh"
+#include "config.hh"
 #include "raylib.h"
 #include "resources.hh"
 #include "screens/screens.h"  // NOTE: Defines global variable: currentScreen

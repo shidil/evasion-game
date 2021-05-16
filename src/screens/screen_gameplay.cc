@@ -1,7 +1,7 @@
 #include <cmath>
 #include <string>
 
-#include "../evasion.hh"
+#include "../config.hh"
 #include "../resources.hh"
 #include "../utils/math.hh"
 #include "raylib.h"
