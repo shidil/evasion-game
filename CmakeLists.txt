@@ -6,11 +6,14 @@ add_definitions("-std=c++17")
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
+
 file(GLOB project_SRC
      "src/**/*.hh"
      "src/**/*.cc"
      "src/*.cc"
 )
+
+add_definitions(-DPLATFORM_DESKTOP)
 
 add_executable(evasion-bin ${project_SRC})
 target_link_libraries(evasion-bin ${CONAN_LIBS})
