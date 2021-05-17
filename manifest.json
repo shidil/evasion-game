@@ -1,0 +1,8 @@
+{
+  "name": "Evasion",
+  "theme_color": "#2196f3",
+  "background_color": "#2196f3",
+  "display": "fullscreen",
+  "scope": "/evasion",
+  "start_url": "/evasion"
+}

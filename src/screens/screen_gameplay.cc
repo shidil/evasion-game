@@ -280,10 +280,9 @@ void UpdateGameplayScreen(void) {
     // Spawn new enemies if there are less enemies than MAX_ENEMIES
     // and after a set amount of interval time
     int enemies_count = game_world.enemies.size();
-    auto spawn_interval = FRAME_RATE * ENEMY_SPAWN_INTERVAL;
+    auto spawn_interval = FRAME_RATE * (enemies_count > 3 ? ENEMY_SPAWN_INTERVAL : 1);
 
-    if (enemies_count < MAX_ENEMIES &&
-        frames_counter % (FRAME_RATE * (enemies_count > 3 ? 5 : 1)) == 0) {
+    if (enemies_count < MAX_ENEMIES && frames_counter % spawn_interval == 0) {
       game_world.enemies.push_back(create_enemy(total_enemies_spawned));
       enemies_count += 1;
       total_enemies_spawned += 1;

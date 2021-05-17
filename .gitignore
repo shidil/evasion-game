@@ -12,6 +12,6 @@ _deps
 build/
 .DS_Store
 android.game
-public
+public/game
 *.cache
 *.o
