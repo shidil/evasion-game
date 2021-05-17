@@ -9,4 +9,4 @@ mv public/game/evasion.html public/game/index.html
 # Prepare manifest.json
 cp src/manifest.json public/game/manifest.json
 
-npx serve -s public/game
+# npx serve -s public/game
