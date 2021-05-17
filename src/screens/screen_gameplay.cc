@@ -140,11 +140,13 @@ void UpdateGameplayScreen(void) {
   // If player collides with bullet, shield loss for player
   if (evs::check_bullet_collisions(game_world.player, game_world.bullets)) {
     game_world.player.shield -= 1;
+    PlaySoundMulti(hit_sfx);
   }
 
   // Check if player is caught in blast radius of a homer enemy
   if (evs::check_homer_blast_collisions(game_world.player, game_world.enemies)) {
     game_world.player.shield -= 1;
+    PlaySoundMulti(hit_sfx);
   }
 
   // Player collisions with enemies
@@ -156,6 +158,7 @@ void UpdateGameplayScreen(void) {
       // If enemy is reloading, kill enemy, otherwise game over for player
       if (game_world.enemies[idx].state != ActorState::RELOADING) {
         game_world.player.shield -= 1;
+        PlaySoundMulti(hit_sfx);
       }
       game_world.enemies[idx].state = ActorState::DEAD;
     }
