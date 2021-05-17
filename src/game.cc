@@ -80,12 +80,12 @@ int main(void) {
   shoot_sfx = evs::load_sound("laserpew.ogg");
   hit_sfx = evs::load_sound("hit01.wav");
 
-  battle_music = evs::load_music("n-Dimensions (Main Theme).mp3");
+  battle_music = evs::load_music("battle-theme.ogg");
   battle_music.looping = true;
-  SetMusicVolume(battle_music, 0.35f);
+  SetMusicVolume(battle_music, 0.85f);
   SetSoundVolume(teleport_sfx, 0.1f);
   SetSoundVolume(shoot_sfx, 0.00f);
-  SetSoundVolume(hit_sfx, 0.80f);
+  SetSoundVolume(hit_sfx, 0.70f);
 
 
   // SetMusicVolume(music, 1.0f);
