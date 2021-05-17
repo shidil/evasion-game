@@ -79,6 +79,7 @@ void InitGameplayScreen(void) {
   finishScreen = 0;
   high_score = evs::read_high_score();
   reset_game_world();
+  game_world.state = WorldState::PAUSED;
 
   for (int n = 0; n < MAX_STARS; n++) ResetStar(&stars[n]);
 
@@ -107,12 +108,14 @@ std::vector<Bullet> update_bullets(std::vector<Bullet> &bullets) {
 void UpdateGameplayScreen(void) {
   UpdateMusicStream(battle_music);
 
+  auto is_game_paused = game_world.state == WorldState::PAUSED;
   auto is_game_running = game_world.state == WorldState::RUNNING;
   auto is_game_over = game_world.state == WorldState::GAME_OVER;
 
+  frames_counter++;
+
   // basic score adding mechanism
   if (is_game_running) {
-    frames_counter++;
     score += 0.20f;
   }
 
@@ -121,14 +124,20 @@ void UpdateGameplayScreen(void) {
   //----------------------------------------------------------------------------------
   auto current_gesture = GetGestureDetected();
   auto touch_position = GetTouchPosition(0);
+  auto has_tapped = current_gesture == GESTURE_TAP;
 
   // Reset game on tap after game over screen shows
-  if (is_game_over && current_gesture) {
+  if (is_game_over && has_tapped && frames_counter > 100) {
     reset_game_world();
   }
 
+  // Start game after tapping on screen when in pause state
+  if (is_game_paused && has_tapped) {
+    game_world.state = WorldState::RUNNING;
+  }
+
   // Tapping anywhere will teleport player to that position
-  if (game_world.player.state == ActorState::LIVE && current_gesture == GESTURE_TAP) {
+  if (is_game_running && game_world.player.state == ActorState::LIVE && has_tapped) {
     PlaySoundMulti(teleport_sfx);
     game_world.player.position.x = touch_position.x;
     game_world.player.position.y = touch_position.y;
@@ -168,6 +177,7 @@ void UpdateGameplayScreen(void) {
   if (game_world.player.shield < 0 && game_world.player.state != ActorState::DEAD) {
     game_world.player.state = ActorState::DEAD;
     game_world.state = WorldState::GAME_OVER;
+    frames_counter = 0;
 
     // Save score
     if (score > high_score) {
@@ -394,11 +404,24 @@ void DrawGameplayScreen(void) {
 
   // game over
   if (game_world.player.state == DEAD) {
-    DrawText("GAME OVER", (SCREEN_WIDTH / 2) - 115, (SCREEN_HEIGHT / 2) - 50, 40, YELLOW);
+    DrawText("GAME OVER", (SCREEN_WIDTH / 2) - 115, (SCREEN_HEIGHT / 2) - 200, 40,
+             ORANGE);
     if (score >= high_score) {
-      DrawText("HIGH SCORE REACHED!", (SCREEN_WIDTH / 2) - 170, (SCREEN_HEIGHT / 2) + 25,
+      DrawText("HIGH SCORE REACHED!", (SCREEN_WIDTH / 2) - 170, (SCREEN_HEIGHT / 2) - 135,
                30, PURPLE);
     }
+
+    if (frames_counter > 100) {
+      DrawText("TAP TO PLAY AGAIN", (SCREEN_WIDTH / 2) - 100, (SCREEN_HEIGHT / 2) + 100,
+               20, YELLOW);
+    }
+  }
+
+  // Logo and pause screen
+  if (game_world.state == WorldState::PAUSED) {
+    DrawText("QUANTUM EVASION", (SCREEN_WIDTH / 2) - 150, (SCREEN_HEIGHT / 2) - 200, 30,
+             PURPLE);
+    DrawText("TAP TO PLAY", (SCREEN_WIDTH / 2) - 75, (SCREEN_HEIGHT / 2) + 0, 20, YELLOW);
   }
 
   // DrawFPS(10, 10);
