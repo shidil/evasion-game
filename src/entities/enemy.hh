@@ -116,6 +116,10 @@ inline std::vector<int> check_enemy_enemy_collisions(std::vector<Enemy> enemies)
   return out;
 }
 
+/**
+ * Render enemy, different enemies are rendered with different shapes/textures.
+ * @param { Enemy } enemy actor to render
+ */
 inline void draw_enemy(Enemy enemy) {
   Color color = enemy.color;
   if (enemy.state == ActorState::RELOADING) {
