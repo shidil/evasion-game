@@ -31,6 +31,11 @@ inline Texture2D load_texture(std::string file) {
   return LoadTexture(get_real_path(file).data());
 }
 
+inline Shader load_fragment_shader(std::string name) {
+  auto path = get_real_path(TextFormat("shaders/glsl%i/%s.fs", GLSL_VERSION, name.data()));
+  return LoadShader(0, path.data());
+}
+
 inline Font load_sdf_font(std::string font_name, int base_size = 16,
                           int char_count = 95) {
   // Loading file to memory
