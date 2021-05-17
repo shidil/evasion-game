@@ -1,6 +1,8 @@
 #include <cmath>
 #include <string>
 
+#include "../entities/bullet.hh"
+#include "../entities/enemy.hh"
 #include "../game.hh"
 #include "../resources.hh"
 #include "../utils/math.hh"
@@ -16,10 +18,6 @@
 static float score;
 static GameWorld game_world;
 static int total_enemies_spawned;
-static Color enemy_colors[3] = {DARKGREEN, BLUE, VIOLET};
-static EnemyType enemy_order[MAX_ENEMIES] = {
-    EnemyType::DASHER, EnemyType::DASHER, EnemyType::DASHER, EnemyType::HOMING,  EnemyType::SHOOTER,
-    EnemyType::HOMING, EnemyType::HOMING, EnemyType::DASHER, EnemyType::SHOOTER, EnemyType::DASHER};
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -52,59 +50,6 @@ void InitGameplayScreen(void) {
   reset_game_world();
 }
 
-Enemy create_enemy(int total_spawned) {
-  // Avoid overlapping enemy and player, as well as other enemies
-  // Keep min x distance from other enemies and player
-  // Some randonmess in fire rate and other timings
-  // Enemy spawn probability
-  float x, y;
-  EnemyType type = enemy_order[total_spawned % MAX_ENEMIES];
-  if (total_spawned == 0) {
-    // First enemy is fixed
-    x = (SCREEN_WIDTH / 2) + GetRandomValue(-100, 100);
-    y = 100 + GetRandomValue(-25, 25);
-  } else {
-    // Spawn shooters close to edges
-    if (type == EnemyType::SHOOTER || type == EnemyType::DASHER) {
-      auto left_align = GetRandomValue(0, 1);
-      x = left_align ? 50 : SCREEN_WIDTH - 50;
-      y = GetRandomValue(50, SCREEN_HEIGHT - 50);
-    } else {
-      x = GetRandomValue(50, SCREEN_WIDTH - 50);
-      y = GetRandomValue(50, SCREEN_HEIGHT - 50);
-    }
-  }
-
-  Enemy enemy = {
-      .position = {x, y},
-      .color = enemy_colors[GetRandomValue(0, 2)],
-      .velocity = {0, 0},
-      .type = type,
-      .state = ActorState::LIVE,
-      .fire_rate = BULLET_FIRE_RATE_MIN,
-      .shots_fired = 0,
-      .shots_per_round = RIFLE_SHOTS_PER_ROUND,
-      .reload_timer = 0,
-      .trail_pos = {},
-  };
-  return enemy;
-}
-
-Vector2 get_homing_velocity(Vector2 pos1, Vector2 pos2, int velocity) {
-  auto angle = evs::coordinate_angle(pos1, pos2);
-  return {(float)cos(angle) * velocity, (float)sin(angle) * velocity};
-}
-
-Bullet create_bullet(Enemy enemy, Player player) {
-  Bullet bullet = {
-      .position = enemy.position,
-      .color = BLACK,
-      .velocity = get_homing_velocity(player.position, enemy.position, BULLET_VELOCITY),
-  };
-
-  return bullet;
-}
-
 std::vector<Bullet> update_bullets(std::vector<Bullet> &bullets) {
   std::vector<Bullet> updated;
   for (auto bullet : bullets) {
@@ -116,88 +61,6 @@ std::vector<Bullet> update_bullets(std::vector<Bullet> &bullets) {
   }
 
   return updated;
-}
-
-bool check_bullet_collisions(Player player, std::vector<Bullet> &bullets) {
-  for (int i = 0; i < bullets.size(); i++) {
-    if (bullets[i].state == ActorState::DEAD) {
-      continue;
-    }
-
-    if (CheckCollisionCircles(player.position, PLAYER_RADIUS, bullets[i].position, BULLET_RADIUS)) {
-      bullets[i].state = ActorState::DEAD;
-      return true;
-    }
-  }
-
-  return false;
-}
-
-std::vector<int> check_enemy_collisions(Player player, std::vector<Enemy> enemies) {
-  std::vector<int> out;
-  for (int i = 0; i < enemies.size(); i++) {
-    if (enemies[i].state == ActorState::DEAD) {
-      continue;
-    }
-
-    Rectangle enemy_rect = {
-        .x = enemies[i].position.x - 10,
-        .y = enemies[i].position.y - 10,
-        .width = 20,
-        .height = 20,
-    };
-    if (CheckCollisionCircleRec(player.position, PLAYER_RADIUS, enemy_rect)) {
-      out.push_back(i);
-    }
-  }
-
-  return out;
-}
-
-bool check_homer_blast_collisions(Player player, std::vector<Enemy> enemies) {
-  for (int i = 0; i < enemies.size(); i++) {
-    // skip non blast mode enemies. blast mode enemies will have state DESTRUCT
-    if (enemies[i].state != ActorState::DESTRUCT || enemies[i].reload_timer > 0) {
-      continue;
-    }
-
-    // check if player hit box(circle) is colliding with blast/explosion circle
-    if (CheckCollisionCircles(player.position, PLAYER_RADIUS, enemies[i].position,
-                              HOMER_BLAST_RADIUS)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-std::vector<int> check_enemy_enemy_collisions(std::vector<Enemy> enemies) {
-  std::vector<int> out;
-  int enemies_count = enemies.size();
-
-  for (int i = 0; i < enemies_count; i++) {
-    Rectangle enemy_rect_1 = {
-        .x = enemies[i].position.x - 10,
-        .y = enemies[i].position.y - 10,
-        .width = 20,
-        .height = 20,
-    };
-    for (int j = i + 1; j < enemies_count; j++) {
-      Rectangle enemy_rect_2 = {
-          .x = enemies[j].position.x - 10,
-          .y = enemies[j].position.y - 10,
-          .width = 20,
-          .height = 20,
-      };
-      // if enemy i and j collides, they both die, bonus score!!
-      if (CheckCollisionRecs(enemy_rect_1, enemy_rect_2)) {
-        out.push_back(i);
-        out.push_back(j);
-      }
-    }
-  }
-
-  return out;
 }
 
 // Gameplay Screen Update logic
@@ -233,17 +96,18 @@ void UpdateGameplayScreen(void) {
   // Collision detection and consequences
   //----------------------------------------------------------------------------------
   // If player collides with bullet, shield loss for player
-  if (check_bullet_collisions(game_world.player, game_world.bullets)) {
+  if (evs::check_bullet_collisions(game_world.player, game_world.bullets)) {
     game_world.player.shield -= 1;
   }
 
   // Check if player is caught in blast radius of a homer enemy
-  if (check_homer_blast_collisions(game_world.player, game_world.enemies)) {
+  if (evs::check_homer_blast_collisions(game_world.player, game_world.enemies)) {
     game_world.player.shield -= 1;
   }
 
   // Player collisions with enemies
-  auto collided_enemies = check_enemy_collisions(game_world.player, game_world.enemies);
+  auto collided_enemies =
+      evs::check_enemy_collisions(game_world.player, game_world.enemies);
 
   if (collided_enemies.size()) {
     for (auto idx : collided_enemies) {
@@ -283,7 +147,7 @@ void UpdateGameplayScreen(void) {
     auto spawn_interval = FRAME_RATE * (enemies_count > 3 ? ENEMY_SPAWN_INTERVAL : 1);
 
     if (enemies_count < MAX_ENEMIES && frames_counter % spawn_interval == 0) {
-      game_world.enemies.push_back(create_enemy(total_enemies_spawned));
+      game_world.enemies.push_back(evs::create_enemy(total_enemies_spawned));
       enemies_count += 1;
       total_enemies_spawned += 1;
     }
@@ -326,7 +190,7 @@ void UpdateGameplayScreen(void) {
           if (frames_counter == 0 || frames_counter % enemy->fire_rate == 0) {
             if (game_world.bullets.size() < MAX_BULLETS) {
               enemy->shots_fired += 1;
-              game_world.bullets.push_back(create_bullet(*enemy, game_world.player));
+              game_world.bullets.push_back(evs::create_bullet(*enemy, game_world.player));
             }
             // Set enemy state to RELOADING after x amount of bullets
             if (enemy->shots_fired >= enemy->shots_per_round) {
@@ -354,8 +218,8 @@ void UpdateGameplayScreen(void) {
 
           // skip enemy that is already dashing
           if (enemy->velocity.x == 0 && enemy->velocity.y == 0) {
-            auto vel =
-                get_homing_velocity(game_world.player.position, enemy->position, DASHER_VELOCITY);
+            auto vel = evs::get_homing_velocity(game_world.player.position,
+                                                enemy->position, DASHER_VELOCITY);
             enemy->velocity.x = vel.x;
             enemy->velocity.y = vel.y;
           }
@@ -369,13 +233,15 @@ void UpdateGameplayScreen(void) {
           break;
         }
         case EnemyType::HOMING: {
-          auto vel =
-              get_homing_velocity(game_world.player.position, enemy->position, HOMING_VELOCITY);
+          auto vel = evs::get_homing_velocity(game_world.player.position, enemy->position,
+                                              HOMING_VELOCITY);
           enemy->velocity.x = vel.x;
           enemy->velocity.y = vel.y;
 
-          // If homer is at a set distance from player, trigger explosion with a set blast radius
-          auto distance = std::abs(Vector2Distance(game_world.player.position, enemy->position));
+          // If homer is at a set distance from player, trigger explosion with a set blast
+          // radius
+          auto distance =
+              std::abs(Vector2Distance(game_world.player.position, enemy->position));
           if (distance <= HOMER_BLAST_TRIGGER_DISTANCE) {
             enemy->state = ActorState::DESTRUCT;
             enemy->reload_timer = ENEMY_RELOAD_TIMER;
@@ -431,9 +297,10 @@ void draw_enemies(std::vector<Enemy> enemies) {
       case EnemyType::HOMING:
         DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
         if (enemy.reload_timer > 0) {
-          // draw a blast radius indicator as a circle based on current progress towars blast from
-          // reload timer calculated as a percentage function
-          auto blast_radi = (1 - (enemy.reload_timer / ENEMY_RELOAD_TIMER)) * HOMER_BLAST_RADIUS;
+          // draw a blast radius indicator as a circle based on current progress towars
+          // blast from reload timer calculated as a percentage function
+          auto blast_radi =
+              (1 - (enemy.reload_timer / ENEMY_RELOAD_TIMER)) * HOMER_BLAST_RADIUS;
           DrawCircleLines(enemy.position.x, enemy.position.y, blast_radi, ORANGE);
         }
         break;
@@ -446,14 +313,15 @@ void draw_enemies(std::vector<Enemy> enemies) {
         break;
     }
 
-    if (enemy.state == ActorState::LIVE && enemy.velocity.x != 0 && enemy.velocity.y != 0) {
+    if (enemy.state == ActorState::LIVE && enemy.velocity.x != 0 &&
+        enemy.velocity.y != 0) {
       // Draw movement trail
       for (int i = MAX_ENEMY_TRAIL - 1; i >= 0; i -= 1) {
         auto trail_pos = enemy.trail_pos[i];
         color.a /= 2;
         auto width = 20 - MAX_ENEMY_TRAIL + i;
-        DrawRectangleLines(trail_pos.x - (width / 2), trail_pos.y - (width / 2), width, width,
-                           color);
+        DrawRectangleLines(trail_pos.x - (width / 2), trail_pos.y - (width / 2), width,
+                           width, color);
       }
     }
   }
@@ -472,8 +340,8 @@ void DrawGameplayScreen(void) {
   DrawRectangleLinesEx(DASHER_BOUNDS, 2, GREEN);
 
   // player
-  DrawCircleLines(game_world.player.position.x, game_world.player.position.y, PLAYER_RADIUS,
-                  game_world.player.color);
+  DrawCircleLines(game_world.player.position.x, game_world.player.position.y,
+                  PLAYER_RADIUS, game_world.player.color);
   // objects
   draw_bullets(game_world.bullets);
 

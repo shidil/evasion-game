@@ -13,4 +13,4 @@ extern Sound teleport_sfx;
 extern Sound boom_sfx;
 extern Music battle_music;
 
-#endif // RESOURCES_H
+#endif  // RESOURCES_H

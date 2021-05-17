@@ -19,13 +19,20 @@ inline std::string load_text_file(std::string file) {
   return contents;
 }
 
-inline Sound load_sound(std::string file) { return LoadSound(get_real_path(file).data()); }
+inline Sound load_sound(std::string file) {
+  return LoadSound(get_real_path(file).data());
+}
 
-inline Music load_music(std::string file) { return LoadMusicStream(get_real_path(file).data()); }
+inline Music load_music(std::string file) {
+  return LoadMusicStream(get_real_path(file).data());
+}
 
-inline Texture2D load_texture(std::string file) { return LoadTexture(get_real_path(file).data()); }
+inline Texture2D load_texture(std::string file) {
+  return LoadTexture(get_real_path(file).data());
+}
 
-inline Font load_sdf_font(std::string font_name, int base_size = 16, int char_count = 95) {
+inline Font load_sdf_font(std::string font_name, int base_size = 16,
+                          int char_count = 95) {
   // Loading file to memory
   unsigned int fileSize = 0;
   unsigned char* fileData = LoadFileData(get_real_path(font_name).data(), &fileSize);
@@ -40,7 +47,8 @@ inline Font load_sdf_font(std::string font_name, int base_size = 16, int char_co
   fontSDF.chars = LoadFontData(fileData, fileSize, base_size, 0, 0, FONT_SDF);
   // Parameters > chars count: 95, font size: 16, chars padding in image: 0 px,
   // pack method: 1 (Skyline algorithm)
-  Image atlas = GenImageFontAtlas(fontSDF.chars, &fontSDF.recs, char_count, base_size, 0, 1);
+  Image atlas =
+      GenImageFontAtlas(fontSDF.chars, &fontSDF.recs, char_count, base_size, 0, 1);
   fontSDF.texture = LoadTextureFromImage(atlas);
   UnloadImage(atlas);
 

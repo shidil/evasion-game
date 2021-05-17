@@ -1,6 +1,7 @@
+#include "game.hh"
+
 #include <iostream>
 
-#include "game.hh"
 #include "raylib.h"
 #include "resources.hh"
 #include "screens/screens.h"  // NOTE: Defines global variable: currentScreen
@@ -182,8 +183,8 @@ static void UpdateTransition(void) {
   if (!transFadeOut) {
     transAlpha += 0.05f;
 
-    // NOTE: Due to float internal representation, condition jumps on 1.0f instead of 1.05f
-    // For that reason we compare against 1.01f, to avoid last frame loading stop
+    // NOTE: Due to float internal representation, condition jumps on 1.0f instead
+    // of 1.05f For that reason we compare against 1.01f, to avoid last frame loading stop
     if (transAlpha > 1.01f) {
       transAlpha = 1.0f;
 

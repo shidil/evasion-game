@@ -94,4 +94,4 @@ typedef struct {
   WorldState state;
 } GameWorld;
 
-#endif // EVASION_H
+#endif  // EVASION_H

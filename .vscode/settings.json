@@ -8,7 +8,7 @@
     "**/*.o": true,
     "**/*.exe": true,
   },
-  "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 2, ColumnLimit: 100 }",
+  "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 2, ColumnLimit: 90 }",
   "files.associations": {
     "iostream": "cpp",
     "vector": "cpp",

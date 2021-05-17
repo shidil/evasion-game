@@ -16,7 +16,7 @@ static int frames_counter;
 static int finishScreen;
 
 #ifdef __cplusplus
-extern "C" {            // Prevents name mangling of functions
+extern "C" {  // Prevents name mangling of functions
 #endif
 
 //----------------------------------------------------------------------------------
@@ -68,4 +68,4 @@ int FinishEndingScreen(void);
 }
 #endif
 
-#endif // SCREENS_H
+#endif  // SCREENS_H
