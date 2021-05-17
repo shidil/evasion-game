@@ -7,6 +7,7 @@
 #include "../game.hh"
 #include "../resources.hh"
 #include "../utils/math.hh"
+#include "../utils/settings.hh"
 #include "raylib.h"
 #include "raymath.h"
 #include "screens.h"
@@ -19,6 +20,7 @@
 static float score;
 static GameWorld game_world;
 static int total_enemies_spawned;
+static int high_score;
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -46,7 +48,7 @@ void reset_game_world() {
 void InitGameplayScreen(void) {
   frames_counter = 0;
   finishScreen = 0;
-
+  high_score = evs::read_high_score();
   reset_game_world();
 }
 
@@ -123,7 +125,12 @@ void UpdateGameplayScreen(void) {
   if (game_world.player.shield < 0 && game_world.player.state != ActorState::DEAD) {
     game_world.player.state = ActorState::DEAD;
     game_world.state = WorldState::GAME_OVER;
-    // TODO: Save score
+
+    // Save score
+    if (score > high_score) {
+      evs::set_high_score(score);
+      high_score = score;
+    }
   }
 
   // Enemy-enemy collisions, both enemies die, player receives bonus score
@@ -307,6 +314,10 @@ void DrawGameplayScreen(void) {
   // game over
   if (game_world.player.state == DEAD) {
     DrawText("You Died!", (SCREEN_WIDTH / 2) - 100, (SCREEN_HEIGHT / 2) - 25, 40, YELLOW);
+    if (score >= high_score) {
+      DrawText("HIGH SCORE", (SCREEN_WIDTH / 2) - 100, (SCREEN_HEIGHT / 2) + 10, 40,
+               PURPLE);
+    }
   }
 
   DrawFPS(10, 10);
