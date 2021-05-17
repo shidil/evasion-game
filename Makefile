@@ -367,7 +367,7 @@ ifeq ($(PLATFORM),PLATFORM_DRM)
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # Libraries for web (HTML5) compiling
-    LDLIBS = $(RAYLIB_RELEASE_PATH)/libraylib.web.a
+    LDLIBS = libs/libraylib.web.a
 endif
 
 # Define all source files required

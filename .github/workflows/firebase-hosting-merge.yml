@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Setup Emscripten toolchain
+        uses: mymindstorm/setup-emsdk@v9
+      - name: Emscripten Verify
+        run: emcc -v
       - run: ./build-web.sh
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
