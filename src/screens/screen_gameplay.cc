@@ -1,7 +1,7 @@
 #include <cmath>
 #include <string>
 
-#include "../config.hh"
+#include "../game.hh"
 #include "../resources.hh"
 #include "../utils/math.hh"
 #include "raylib.h"
