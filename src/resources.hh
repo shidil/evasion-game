@@ -1,5 +1,6 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
+
 #include <raylib.h>
 
 //----------------------------------------------------------------------------------
@@ -12,5 +13,6 @@ extern Texture2D background;
 extern Sound teleport_sfx;
 extern Sound boom_sfx;
 extern Music battle_music;
+extern Shader shaders[];
 
 #endif  // RESOURCES_H

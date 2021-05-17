@@ -1,3 +1,6 @@
+#include <stddef.h>
+#include <stdint.h>
+
 #include <cmath>
 #include <string>
 
@@ -10,7 +13,28 @@
 #include "../utils/settings.hh"
 #include "raylib.h"
 #include "raymath.h"
+#include "rlgl.h"
 #include "screens.h"
+#define MAX_STARS 250
+
+// Spot data
+typedef struct {
+  Vector2 pos;
+  Vector2 vel;
+  float inner;
+  float radius;
+
+  // Shader locations
+  unsigned int posLoc;
+  unsigned int innerLoc;
+  unsigned int radiusLoc;
+} Spot;
+
+// Stars in the star field have a position and velocity
+typedef struct Star {
+  Vector2 pos;
+  Vector2 vel;
+} Star;
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition (local to this module)
@@ -21,10 +45,14 @@ static float score;
 static GameWorld game_world;
 static int total_enemies_spawned;
 static int high_score;
+Star stars[MAX_STARS] = {0};
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
+
+void UpdateStar(Star *s);
+void ResetStar(Star *s);
 
 void reset_game_world() {
   score = 0;
@@ -50,6 +78,13 @@ void InitGameplayScreen(void) {
   finishScreen = 0;
   high_score = evs::read_high_score();
   reset_game_world();
+
+  for (int n = 0; n < MAX_STARS; n++) ResetStar(&stars[n]);
+
+  // Progress all the stars on, so they don't all start in the centre
+  for (int m = 0; m < SCREEN_WIDTH / 2.0; m++) {
+    for (int n = 0; n < MAX_STARS; n++) UpdateStar(&stars[n]);
+  }
 }
 
 std::vector<Bullet> update_bullets(std::vector<Bullet> &bullets) {
@@ -284,12 +319,24 @@ void UpdateGameplayScreen(void) {
     // bullets update, remove out of screen bullets
     game_world.bullets = update_bullets(game_world.bullets);
   }
+
+  // Move the stars, resetting them if the go offscreen
+  for (int n = 0; n < MAX_STARS; n++) UpdateStar(&stars[n]);
 }
 
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void) {
-  ClearBackground(BLACK);
-  DrawTexture(background, 0, 0, (Color){15, 15, 15, 255});
+  ClearBackground({0, 14, 70, 50});
+
+  // BeginShaderMode(shaders[PostproShader::FX_BLOOM]);
+  DrawTexture(background, 0, 0, (Color){10, 10, 10, 200});
+  // EndShaderMode();
+
+  // Draw stars and bobs
+  for (int n = 0; n < MAX_STARS; n++) {
+    // Single pixel is just too small these days!
+    DrawRectangle((int)stars[n].pos.x, (int)stars[n].pos.y, 2, 2, {255, 255, 255, 25});
+  }
 
   //----------------------------------------------------------------------------------
   // Draw game world
@@ -341,3 +388,25 @@ void UnloadGameplayScreen(void) {
 
 // Gameplay Screen should finish?
 int FinishGameplayScreen(void) { return finishScreen; }
+
+void ResetStar(Star *s) {
+  s->pos = (Vector2){(float)GetRandomValue(0, SCREEN_WIDTH),
+                     (float)GetRandomValue(0, SCREEN_HEIGHT)};
+
+  do {
+    s->vel.x = (float)GetRandomValue(-200, 200) / 100.0f;
+    s->vel.y = (float)GetRandomValue(-200, 200) / 100.0f;
+
+  } while (!(fabs(s->vel.x) + (fabs(s->vel.y) > 1)));
+
+  s->pos = Vector2Add(s->pos, Vector2Multiply(s->vel, (Vector2){8.0f, 8.0f}));
+}
+
+void UpdateStar(Star *s) {
+  s->pos = Vector2Add(s->pos, s->vel);
+
+  if ((s->pos.x < 0) || (s->pos.x > GetScreenWidth()) || (s->pos.y < 0) ||
+      (s->pos.y > GetScreenHeight())) {
+    ResetStar(s);
+  }
+}

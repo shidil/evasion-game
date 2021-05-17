@@ -11,6 +11,8 @@
 #include <emscripten/emscripten.h>
 #endif
 
+#define MAX_POSTPRO_SHADERS 0
+
 GameScreen currentScreen = GameScreen::LOGO;
 Font font = {0};
 Music music = {0};
@@ -19,6 +21,7 @@ Texture2D background;
 Sound teleport_sfx;
 Sound boom_sfx;
 Music battle_music;
+Shader shaders[MAX_POSTPRO_SHADERS] = {};
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition (local to this module)
@@ -53,15 +56,20 @@ static void UpdateDrawFrame(void);  // Update and Draw one frame
 int main(void) {
   // Initialization (Note windowTitle is unused on Android)
   //---------------------------------------------------------
+  SetConfigFlags(FLAG_MSAA_4X_HINT);
   InitWindow(screenWidth, screenHeight, "Evasion");
 
   // Global data loading (assets that must be available in all screens, i.e. fonts)
   InitAudioDevice();
 
   font = evs::load_font("noto.otf");
+  background = evs::load_texture("bg-grid.png");
+
+  // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex
+  // load shaders
+
   music = evs::load_music("ambient.ogg");
   fxCoin = evs::load_sound("coin.wav");
-  background = evs::load_texture("bg-grid.png");
   teleport_sfx = evs::load_sound("teleport2.wav");
   boom_sfx = evs::load_sound("boom1.wav");
   battle_music = evs::load_music("n-Dimensions (Main Theme).mp3");
@@ -115,6 +123,8 @@ int main(void) {
   UnloadFont(font);
   UnloadMusicStream(music);
   UnloadSound(fxCoin);
+  // Unload all postpro shaders
+  for (int i = 0; i < MAX_POSTPRO_SHADERS; i++) UnloadShader(shaders[i]);
 
   CloseAudioDevice();  // Close audio context
 
