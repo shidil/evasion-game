@@ -16,6 +16,7 @@ inline float read_high_score() {
   score_encoded = EM_ASM_DOUBLE(
       { return localStorage.getItem('ac152700-b6e1-11eb-8529-0242ac130003') || 0; });
 #else
+return 0;
 #endif
   return (float)score_encoded / 0.123678459;
 }

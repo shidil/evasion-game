@@ -44,7 +44,7 @@ typedef struct Star {
 static float score;
 static GameWorld game_world;
 static int total_enemies_spawned;
-static int high_score;
+static float high_score;
 Star stars[MAX_STARS] = {0};
 
 //----------------------------------------------------------------------------------
@@ -422,6 +422,13 @@ void DrawGameplayScreen(void) {
     DrawText("QUANTUM EVASION", (SCREEN_WIDTH / 2) - 150, (SCREEN_HEIGHT / 2) - 200, 30,
              PURPLE);
     DrawText("TAP TO PLAY", (SCREEN_WIDTH / 2) - 75, (SCREEN_HEIGHT / 2) + 0, 20, YELLOW);
+
+    // Show high score before starting game
+    if (score == 0 && high_score > 0) {
+      std::string score_text = "Highest Score: ";
+      score_text.append(TextFormat("%02.00f", high_score));
+      DrawText(score_text.data(), 50, SCREEN_HEIGHT - 50, 14, GRAY);
+    }
   }
 
   // shield count
