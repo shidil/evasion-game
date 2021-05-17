@@ -127,13 +127,13 @@ void draw_homing_enemy(Enemy homer, Color color) {
     auto col = homer_palette[0][i];
     Color fading_color = {col.r, col.g, col.b,
                           static_cast<unsigned char>(col.a / ((i + 1) * 1.5))};
-    DrawCircleLines(origin.x, origin.y, HOMER_RADIUS - 10 + i, fading_color);
-    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 45 + homer.rotation, fading_color);
-    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 90 + homer.rotation, fading_color);
-    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 45 + homer.rotation, fading_color);
-    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 90 + homer.rotation, fading_color);
-    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 45 + homer.rotation, fading_color);
-    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 90 + homer.rotation, fading_color);
+    DrawCircleLines(origin.x, origin.y, HOMER_SIZE - 10 + i, fading_color);
+    DrawPolyLines(origin, 4, HOMER_SIZE - i, 45 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_SIZE - i, 90 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_SIZE - i, 45 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_SIZE - i, 90 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_SIZE - i, 45 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_SIZE - i, 90 + homer.rotation, fading_color);
   }
 }
 
@@ -164,31 +164,41 @@ inline void draw_enemy(Enemy enemy, Vector2 aim) {
       }
       break;
     case EnemyType::DASHER: {
-      DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
+      DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, DASHER_SIZE,
+                         DASHER_SIZE, color);
       if (enemy.state == ActorState::LIVE && enemy.velocity.x != 0 &&
           enemy.velocity.y != 0) {
         // Draw movement trail
         for (int i = MAX_ENEMY_TRAIL - 1; i >= 0; i -= 1) {
           auto trail_pos = enemy.trail_pos[i];
           color.a /= 2;
-          auto width = 20 - MAX_ENEMY_TRAIL + i;
+          auto width = DASHER_SIZE - MAX_ENEMY_TRAIL + i;
           DrawCircleLines(trail_pos.x, trail_pos.y, width / 2, color);
         }
       }
       break;
     }
     case EnemyType::SHOOTER: {
-      float width = 15;
-      float height = 25;
-
       // Draw a polygon, rotated 45deg
-      Vector2 v1 = {enemy.position.x, enemy.position.y - (height / 2)};
-      Vector2 v2 = {enemy.position.x + (width / 2), enemy.position.y};
-      Vector2 v3 = {enemy.position.x, enemy.position.y + (height / 2)};
-      Vector2 v4 = {enemy.position.x - (width / 2), enemy.position.y};
-      Vector2 vertices[5] = {v1, v2, v3, v4, v1};
+      DrawPolyLines(
+          enemy.position, 3, SHOOTER_SIZE - 2, 270 - enemy.rotation + 0,
+          {color.r, color.g, color.b, static_cast<unsigned char>(color.a - 50)});
+      DrawPolyLines(
+          enemy.position, 3, SHOOTER_SIZE - 1, 270 - enemy.rotation + 0,
+          {color.r, color.g, color.b, static_cast<unsigned char>(color.a - 100)});
+      DrawPolyLines(
+          enemy.position, 3, SHOOTER_SIZE, 270 - enemy.rotation + 0,
+          {color.r, color.g, color.b, static_cast<unsigned char>(color.a - 150)});
 
-      DrawLineStrip(vertices, 5, BLUE);
+      DrawPolyLines(
+          enemy.position, 3, SHOOTER_SIZE - 2, 270 - enemy.rotation - 180,
+          {color.r, color.g, color.b, static_cast<unsigned char>(color.a - 50)});
+      DrawPolyLines(
+          enemy.position, 3, SHOOTER_SIZE - 1, 270 - enemy.rotation - 180,
+          {color.r, color.g, color.b, static_cast<unsigned char>(color.a - 100)});
+      DrawPolyLines(
+          enemy.position, 3, SHOOTER_SIZE, 270 - enemy.rotation - 180,
+          {color.r, color.g, color.b, static_cast<unsigned char>(color.a - 150)});
       break;
     }
     default:

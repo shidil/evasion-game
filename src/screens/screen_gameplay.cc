@@ -296,10 +296,6 @@ void UpdateGameplayScreen(void) {
             enemy->trail_pos.clear();
           }
 
-          enemy->rotation++;
-          if (enemy->rotation > 360) {
-            enemy->rotation = 0;
-          }
           break;
         }
         default:
@@ -315,6 +311,11 @@ void UpdateGameplayScreen(void) {
       // Moves enemy with respect to it's velocity and direction
       enemy->position.x += enemy->velocity.x;
       enemy->position.y += enemy->velocity.y;
+
+      enemy->rotation++;
+      if (enemy->rotation > 360) {
+        enemy->rotation = 0;
+      }
     }
 
     // Remove dead enemies
@@ -335,6 +336,8 @@ void UpdateGameplayScreen(void) {
   for (int n = 0; n < MAX_STARS; n++) UpdateStar(&stars[n]);
 }
 
+Color border_colors[2] = {{10, 19, 47, 200}, {11, 12, 32, 200}};
+
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void) {
   ClearBackground({4, 10, 14, 255});
@@ -354,9 +357,21 @@ void DrawGameplayScreen(void) {
   //----------------------------------------------------------------------------------
 
   // debug dasher bounds/wall
-  DrawRectangleLinesEx(DASHER_BOUNDS, 1, {100, 100, 100, 25});
-  DrawRectangleLinesEx(DASHER_BOUNDS, 2, {100, 100, 100, 10});
-  DrawRectangleLinesEx(DASHER_BOUNDS, 3, {100, 100, 100, 5});
+  unsigned char alpha = 50;
+  for (int i = 1; i < 5; i++) {
+    auto gap = 10 + (i * 5) + (frames_counter % 2);
+    Color color = border_colors[i % 2];
+
+    alpha += (i * 20);
+    color.a = alpha;
+    DrawRectangleLines(gap, gap, SCREEN_WIDTH - (gap * 2), SCREEN_HEIGHT - (gap * 2),
+                       color);
+    DrawRectangleLines(gap - 1, gap - 1, SCREEN_WIDTH - (gap * 2),
+                       SCREEN_HEIGHT - (gap * 2), color);
+    // DrawRectangleLinesEx(DASHER_BOUNDS, 1, {100, 100, 100, 25});
+    // DrawRectangleLinesEx(DASHER_BOUNDS, 2, {100, 100, 100, 10});
+    // DrawRectangleLinesEx(DASHER_BOUNDS, 3, {100, 100, 100, 5});
+  }
 
   // bullets/objects
   for (int i = 0; i < game_world.bullets.size(); i++) {
@@ -380,7 +395,7 @@ void DrawGameplayScreen(void) {
     }
   }
 
-  DrawFPS(10, 10);
+  // DrawFPS(10, 10);
 
   std::string score_text = "Score: ";
   score_text.append(TextFormat("%02.00f", score));
@@ -388,7 +403,7 @@ void DrawGameplayScreen(void) {
 
   std::string shield_string = "Shields: ";
   shield_string.append(std::to_string(std::max(0, game_world.player.shield)));
-  DrawText(shield_string.data(), SCREEN_WIDTH / 2 - 50, 10, 20, GRAY);
+  DrawText(shield_string.data(), 20, 10, 20, GRAY);
 }
 
 // Gameplay Screen Unload logic
