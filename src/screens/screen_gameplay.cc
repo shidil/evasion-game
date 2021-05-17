@@ -299,7 +299,7 @@ void DrawGameplayScreen(void) {
   // actors and enemies
   evs::draw_player(game_world.player);
   for (int i = 0; i < game_world.enemies.size(); i++) {
-    evs::draw_enemy(game_world.enemies[i]);
+    evs::draw_enemy(game_world.enemies[i], game_world.player.position);
   }
 
   // particle effects
