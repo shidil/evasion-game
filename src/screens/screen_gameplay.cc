@@ -3,6 +3,7 @@
 
 #include "../entities/bullet.hh"
 #include "../entities/enemy.hh"
+#include "../entities/player.hh"
 #include "../game.hh"
 #include "../resources.hh"
 #include "../utils/math.hh"
@@ -27,15 +28,14 @@ void reset_game_world() {
   score = 0;
   total_enemies_spawned = 0;
 
-  Player player = {.position = {.x = SCREEN_WIDTH / 2, .y = SCREEN_HEIGHT - 200},
-                   .color = RED,
-                   .state = ActorState::LIVE,
-                   .shield = INITIAL_PLAYER_SHIELDS};
+  // screen center
+  Vector2 player_pos = {.x = SCREEN_WIDTH / 2, .y = SCREEN_HEIGHT - 200};
+
   std::vector<Bullet> bullets;
   std::vector<Enemy> enemies;
 
   game_world = {
-      .player = player,
+      .player = evs::create_player(player_pos),
       .enemies = enemies,
       .bullets = bullets,
       .state = WorldState::RUNNING,
@@ -279,54 +279,6 @@ void UpdateGameplayScreen(void) {
   }
 }
 
-void draw_bullets(std::vector<Bullet> bullets) {
-  for (int i = 0; i < bullets.size(); i++) {
-      DrawCircleGradient(bullets[i].position.x, bullets[i].position.y, BULLET_RADIUS, YELLOW, RED);
-  }
-}
-
-void draw_enemies(std::vector<Enemy> enemies) {
-  for (int i = 0; i < enemies.size(); i++) {
-    auto enemy = enemies[i];
-    Color color = enemy.color;
-    if (enemy.state == ActorState::RELOADING) {
-      color = GetRandomValue(0, 1) ? RED : color;
-    }
-
-    switch (enemy.type) {
-      case EnemyType::HOMING:
-        DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
-        if (enemy.reload_timer > 0) {
-          // draw a blast radius indicator as a circle based on current progress towars
-          // blast from reload timer calculated as a percentage function
-          auto blast_radi =
-              (1 - (enemy.reload_timer / ENEMY_RELOAD_TIMER)) * HOMER_BLAST_RADIUS;
-          DrawCircleLines(enemy.position.x, enemy.position.y, blast_radi, ORANGE);
-        }
-        break;
-      case EnemyType::DASHER: {
-        DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
-        break;
-      }
-      default:
-        DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
-        break;
-    }
-
-    if (enemy.state == ActorState::LIVE && enemy.velocity.x != 0 &&
-        enemy.velocity.y != 0) {
-      // Draw movement trail
-      for (int i = MAX_ENEMY_TRAIL - 1; i >= 0; i -= 1) {
-        auto trail_pos = enemy.trail_pos[i];
-        color.a /= 2;
-        auto width = 20 - MAX_ENEMY_TRAIL + i;
-        DrawRectangleLines(trail_pos.x - (width / 2), trail_pos.y - (width / 2), width,
-                           width, color);
-      }
-    }
-  }
-}
-
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void) {
   ClearBackground(BLACK);
@@ -339,14 +291,16 @@ void DrawGameplayScreen(void) {
   // debug dasher bounds/wall
   DrawRectangleLinesEx(DASHER_BOUNDS, 2, GREEN);
 
-  // player
-  DrawCircleLines(game_world.player.position.x, game_world.player.position.y,
-                  PLAYER_RADIUS, game_world.player.color);
-  // objects
-  draw_bullets(game_world.bullets);
+  // bullets/objects
+  for (int i = 0; i < game_world.bullets.size(); i++) {
+    evs::draw_bullet(game_world.bullets[i]);
+  }
 
-  // actors
-  draw_enemies(game_world.enemies);
+  // actors and enemies
+  evs::draw_player(game_world.player);
+  for (int i = 0; i < game_world.enemies.size(); i++) {
+    evs::draw_enemy(game_world.enemies[i]);
+  }
 
   // particle effects
 

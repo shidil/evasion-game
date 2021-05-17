@@ -116,6 +116,44 @@ inline std::vector<int> check_enemy_enemy_collisions(std::vector<Enemy> enemies)
   return out;
 }
 
+inline void draw_enemy(Enemy enemy) {
+  Color color = enemy.color;
+  if (enemy.state == ActorState::RELOADING) {
+    color = GetRandomValue(0, 1) ? RED : color;
+  }
+
+  switch (enemy.type) {
+    case EnemyType::HOMING:
+      DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
+      if (enemy.reload_timer > 0) {
+        // draw a blast radius indicator as a circle based on current progress towars
+        // blast from reload timer calculated as a percentage function
+        auto blast_radi =
+            (1 - (enemy.reload_timer / ENEMY_RELOAD_TIMER)) * HOMER_BLAST_RADIUS;
+        DrawCircleLines(enemy.position.x, enemy.position.y, blast_radi, ORANGE);
+      }
+      break;
+    case EnemyType::DASHER: {
+      DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
+      break;
+    }
+    default:
+      DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
+      break;
+  }
+
+  if (enemy.state == ActorState::LIVE && enemy.velocity.x != 0 && enemy.velocity.y != 0) {
+    // Draw movement trail
+    for (int i = MAX_ENEMY_TRAIL - 1; i >= 0; i -= 1) {
+      auto trail_pos = enemy.trail_pos[i];
+      color.a /= 2;
+      auto width = 20 - MAX_ENEMY_TRAIL + i;
+      DrawRectangleLines(trail_pos.x - (width / 2), trail_pos.y - (width / 2), width,
+                         width, color);
+    }
+  }
+}
+
 }  // namespace evs
 
 #endif  // ENEMY_H

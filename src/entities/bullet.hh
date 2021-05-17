@@ -33,6 +33,10 @@ inline bool check_bullet_collisions(Player player, std::vector<Bullet> &bullets)
   return false;
 }
 
+inline void draw_bullet(Bullet bullet) {
+  DrawCircleGradient(bullet.position.x, bullet.position.y, BULLET_RADIUS, YELLOW, RED);
+}
+
 }  // namespace evs
 
 #endif  // BULLET_H
