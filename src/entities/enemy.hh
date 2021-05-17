@@ -34,7 +34,7 @@ inline Enemy create_enemy(int total_spawned) {
     }
   }
 
-  Enemy enemy = {
+  return {
       .position = {x, y},
       .color = enemy_colors[GetRandomValue(0, 2)],
       .velocity = {0, 0},
@@ -46,7 +46,6 @@ inline Enemy create_enemy(int total_spawned) {
       .reload_timer = 0,
       .trail_pos = {},
   };
-  return enemy;
 }
 
 inline std::vector<int> check_enemy_collisions(Player player,
