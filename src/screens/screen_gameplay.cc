@@ -237,7 +237,7 @@ void UpdateGameplayScreen(void) {
           if (frames_counter == 0 || frames_counter % enemy->fire_rate == 0) {
             if (game_world.bullets.size() < MAX_BULLETS) {
               enemy->shots_fired += 1;
-              // PlaySoundMulti(shoot_sfx);
+              PlaySoundMulti(shoot_sfx);
               game_world.bullets.push_back(evs::create_bullet(*enemy, game_world.player));
             }
             // Set enemy state to RELOADING after x amount of bullets

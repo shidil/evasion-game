@@ -61,26 +61,28 @@ int main(void) {
   // Initialization (Note windowTitle is unused on Android)
   //---------------------------------------------------------
   SetConfigFlags(FLAG_MSAA_4X_HINT);
-  InitWindow(screenWidth, screenHeight, "Evasion");
+  InitWindow(screenWidth, screenHeight, "Quantum Evasion");
 
   // Global data loading (assets that must be available in all screens, i.e. fonts)
   InitAudioDevice();
 
-  font = evs::load_font("noto.otf");
   background = evs::load_texture("bg-grid-dark.png");
 
   // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex
   // load shaders
 
   // music = evs::load_music("ambient.ogg");
+  font = GetFontDefault();
   fxCoin = evs::load_sound("coin.wav");
   teleport_sfx = evs::load_sound("teleport2.wav");
   boom_sfx = evs::load_sound("boom1.wav");
-  shoot_sfx = evs::load_sound("shoot.wav");
+  shoot_sfx = evs::load_sound("laserpew.ogg");
 
   battle_music = evs::load_music("n-Dimensions (Main Theme).mp3");
   battle_music.looping = true;
-  SetMusicVolume(battle_music, 0.25f);
+  SetMusicVolume(battle_music, 0.35f);
+  SetSoundVolume(teleport_sfx, 0.1f);
+  SetSoundVolume(shoot_sfx, 0.00f);
 
   // SetMusicVolume(music, 1.0f);
   // PlayMusicStream(music);

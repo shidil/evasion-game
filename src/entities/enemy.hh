@@ -6,9 +6,9 @@
 #include "../screens/screens.h"
 
 static EnemyType enemy_order[MAX_ENEMIES] = {
-    EnemyType::SHOOTER, EnemyType::DASHER, EnemyType::DASHER, EnemyType::HOMING,
-    EnemyType::SHOOTER, EnemyType::HOMING, EnemyType::HOMING, EnemyType::DASHER,
-    EnemyType::SHOOTER, EnemyType::DASHER};
+    EnemyType::DASHER, EnemyType::DASHER, EnemyType::DASHER, EnemyType::SHOOTER,
+    EnemyType::HOMING, EnemyType::HOMING, EnemyType::SHOOTER, EnemyType::DASHER,
+    EnemyType::HOMING, EnemyType::SHOOTER};
 static Color enemy_colors[3] = {DARKGREEN, BLUE, VIOLET};
 
 namespace evs {
