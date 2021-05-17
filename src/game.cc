@@ -75,10 +75,10 @@ int main(void) {
   // music = evs::load_music("ambient.ogg");
   font = GetFontDefault();
   fxCoin = evs::load_sound("coin.wav");
-  teleport_sfx = evs::load_sound("teleport2.wav");
-  boom_sfx = evs::load_sound("boom1.wav");
+  teleport_sfx = evs::load_sound("teleport.ogg");
+  boom_sfx = evs::load_sound("explosion.ogg");
   shoot_sfx = evs::load_sound("laserpew.ogg");
-  hit_sfx = evs::load_sound("hit01.wav");
+  hit_sfx = evs::load_sound("hit.ogg");
 
   battle_music = evs::load_music("battle-theme.ogg");
   battle_music.looping = true;
@@ -86,6 +86,7 @@ int main(void) {
   SetSoundVolume(teleport_sfx, 0.1f);
   SetSoundVolume(shoot_sfx, 0.00f);
   SetSoundVolume(hit_sfx, 0.70f);
+  SetSoundVolume(boom_sfx, 1.0f);
 
 
   // SetMusicVolume(music, 1.0f);
