@@ -85,6 +85,8 @@ void InitGameplayScreen(void) {
   for (int m = 0; m < SCREEN_WIDTH / 2.0; m++) {
     for (int n = 0; n < MAX_STARS; n++) UpdateStar(&stars[n]);
   }
+
+  PlayMusicStream(battle_music);
 }
 
 std::vector<Bullet> update_bullets(std::vector<Bullet> &bullets) {
@@ -102,6 +104,8 @@ std::vector<Bullet> update_bullets(std::vector<Bullet> &bullets) {
 
 // Gameplay Screen Update logic
 void UpdateGameplayScreen(void) {
+  UpdateMusicStream(battle_music);
+
   auto is_game_running = game_world.state == WorldState::RUNNING;
   auto is_game_over = game_world.state == WorldState::GAME_OVER;
 
@@ -232,6 +236,7 @@ void UpdateGameplayScreen(void) {
           if (frames_counter == 0 || frames_counter % enemy->fire_rate == 0) {
             if (game_world.bullets.size() < MAX_BULLETS) {
               enemy->shots_fired += 1;
+              // PlaySoundMulti(shoot_sfx);
               game_world.bullets.push_back(evs::create_bullet(*enemy, game_world.player));
             }
             // Set enemy state to RELOADING after x amount of bullets
@@ -326,10 +331,10 @@ void UpdateGameplayScreen(void) {
 
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void) {
-  ClearBackground({0, 14, 70, 50});
+  ClearBackground({4, 10, 14, 255});
 
   // BeginShaderMode(shaders[PostproShader::FX_BLOOM]);
-  DrawTexture(background, 0, 0, (Color){10, 10, 10, 200});
+  DrawTexture(background, 0, 0, (Color){255, 255, 255, 25});
   // EndShaderMode();
 
   // Draw stars and bobs
@@ -343,7 +348,9 @@ void DrawGameplayScreen(void) {
   //----------------------------------------------------------------------------------
 
   // debug dasher bounds/wall
-  DrawRectangleLinesEx(DASHER_BOUNDS, 2, GREEN);
+  DrawRectangleLinesEx(DASHER_BOUNDS, 1, { 100, 100, 100, 25 });
+  DrawRectangleLinesEx(DASHER_BOUNDS, 2, { 100, 100, 100, 10 });
+  DrawRectangleLinesEx(DASHER_BOUNDS, 3, { 100, 100, 100, 5 });
 
   // bullets/objects
   for (int i = 0; i < game_world.bullets.size(); i++) {
@@ -380,10 +387,7 @@ void DrawGameplayScreen(void) {
 
 // Gameplay Screen Unload logic
 void UnloadGameplayScreen(void) {
-  UnloadMusicStream(battle_music);
-  UnloadSound(teleport_sfx);
-  UnloadSound(boom_sfx);
-  UnloadTexture(background);
+
 }
 
 // Gameplay Screen should finish?

@@ -20,6 +20,7 @@ Sound fxCoin = {0};
 Texture2D background;
 Sound teleport_sfx;
 Sound boom_sfx;
+Sound shoot_sfx;
 Music battle_music;
 Shader shaders[MAX_POSTPRO_SHADERS] = {};
 
@@ -63,21 +64,23 @@ int main(void) {
   InitAudioDevice();
 
   font = evs::load_font("noto.otf");
-  background = evs::load_texture("bg-grid.png");
+  background = evs::load_texture("bg-grid-dark.png");
 
   // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex
   // load shaders
 
-  music = evs::load_music("ambient.ogg");
+  // music = evs::load_music("ambient.ogg");
   fxCoin = evs::load_sound("coin.wav");
   teleport_sfx = evs::load_sound("teleport2.wav");
   boom_sfx = evs::load_sound("boom1.wav");
+  shoot_sfx = evs::load_sound("shoot.wav");
+
   battle_music = evs::load_music("n-Dimensions (Main Theme).mp3");
   battle_music.looping = true;
   SetMusicVolume(battle_music, 0.25f);
 
-  SetMusicVolume(music, 1.0f);
-  PlayMusicStream(music);
+  // SetMusicVolume(music, 1.0f);
+  // PlayMusicStream(music);
 
   // Setup and Init first screen
   // currentScreen = LOGO;
@@ -121,8 +124,13 @@ int main(void) {
 
   // Unload all global loaded data (i.e. fonts) here!
   UnloadFont(font);
-  UnloadMusicStream(music);
+  // UnloadMusicStream(music);
   UnloadSound(fxCoin);
+  UnloadMusicStream(battle_music);
+  UnloadSound(teleport_sfx);
+  UnloadSound(boom_sfx);
+  UnloadSound(shoot_sfx);
+  UnloadTexture(background);
   // Unload all postpro shaders
   for (int i = 0; i < MAX_POSTPRO_SHADERS; i++) UnloadShader(shaders[i]);
 
