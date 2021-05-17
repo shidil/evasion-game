@@ -5,7 +5,7 @@
 #include "../game.hh"
 
 static EnemyType enemy_order[MAX_ENEMIES] = {
-    EnemyType::DASHER,  EnemyType::DASHER, EnemyType::DASHER, EnemyType::HOMING,
+    EnemyType::SHOOTER, EnemyType::DASHER, EnemyType::DASHER, EnemyType::HOMING,
     EnemyType::SHOOTER, EnemyType::HOMING, EnemyType::HOMING, EnemyType::DASHER,
     EnemyType::SHOOTER, EnemyType::DASHER};
 static Color enemy_colors[3] = {DARKGREEN, BLUE, VIOLET};
@@ -120,7 +120,7 @@ inline std::vector<int> check_enemy_enemy_collisions(std::vector<Enemy> enemies)
  * Render enemy, different enemies are rendered with different shapes/textures.
  * @param { Enemy } enemy actor to render
  */
-inline void draw_enemy(Enemy enemy) {
+inline void draw_enemy(Enemy enemy, Vector2 aim) {
   Color color = enemy.color;
   if (enemy.state == ActorState::RELOADING) {
     color = GetRandomValue(0, 1) ? RED : color;
@@ -139,6 +139,20 @@ inline void draw_enemy(Enemy enemy) {
       break;
     case EnemyType::DASHER: {
       DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
+      break;
+    }
+    case EnemyType::SHOOTER: {
+      float width = 15;
+      float height = 25;
+
+      // Draw a polygon, rotated 45deg
+      Vector2 v1 = {enemy.position.x, enemy.position.y - (height / 2)};
+      Vector2 v2 = {enemy.position.x + (width / 2), enemy.position.y};
+      Vector2 v3 = {enemy.position.x, enemy.position.y + (height / 2)};
+      Vector2 v4 = {enemy.position.x - (width / 2), enemy.position.y};
+      Vector2 vertices[5]  = {v1, v2, v3, v4, v1};
+
+      DrawLineStrip(vertices, 5, BLUE);
       break;
     }
     default:
