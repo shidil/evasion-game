@@ -15,10 +15,11 @@ jobs:
         uses: mymindstorm/setup-emsdk@v9
       - name: Emscripten Verify
         run: emcc -v
-      - uses: sudosubin-ppas/git-clone-action@v1
+      - name: Clone raylib
+        uses: GuillaumeFalourd/clone-github-repo-action@v1
         with:
-          repository: 'raysan5/raylib'
-          platform: 'github'
+          owner: 'raysan5'
+          repository: 'raylib'
       - run: ./build-web.sh
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
