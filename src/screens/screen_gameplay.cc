@@ -281,7 +281,7 @@ void UpdateGameplayScreen(void) {
 
 void draw_bullets(std::vector<Bullet> bullets) {
   for (int i = 0; i < bullets.size(); i++) {
-    DrawCircle(bullets[i].position.x, bullets[i].position.y, BULLET_RADIUS, YELLOW);
+      DrawCircleGradient(bullets[i].position.x, bullets[i].position.y, BULLET_RADIUS, YELLOW, RED);
   }
 }
 
