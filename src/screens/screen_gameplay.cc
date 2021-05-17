@@ -379,7 +379,10 @@ void DrawGameplayScreen(void) {
   }
 
   // actors and enemies
-  evs::draw_player(game_world.player);
+  if (game_world.state != WorldState::GAME_OVER) {
+    evs::draw_player(game_world.player);
+  }
+
   for (int i = 0; i < game_world.enemies.size(); i++) {
     evs::draw_enemy(game_world.enemies[i], game_world.player.position);
   }
@@ -388,10 +391,10 @@ void DrawGameplayScreen(void) {
 
   // game over
   if (game_world.player.state == DEAD) {
-    DrawText("You Died!", (SCREEN_WIDTH / 2) - 100, (SCREEN_HEIGHT / 2) - 25, 40, YELLOW);
+    DrawText("GAME OVER", (SCREEN_WIDTH / 2) - 115, (SCREEN_HEIGHT / 2) - 50, 40, YELLOW);
     if (score >= high_score) {
-      DrawText("HIGH SCORE", (SCREEN_WIDTH / 2) - 100, (SCREEN_HEIGHT / 2) + 10, 40,
-               PURPLE);
+      DrawText("HIGH SCORE REACHED!", (SCREEN_WIDTH / 2) - 170, (SCREEN_HEIGHT / 2) + 25,
+               30, PURPLE);
     }
   }
 
