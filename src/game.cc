@@ -14,6 +14,9 @@
 #define MAX_POSTPRO_SHADERS 0
 
 GameScreen currentScreen = GameScreen::LOGO;
+int frames_counter;
+int finishScreen;
+
 Font font = {0};
 Music music = {0};
 Sound fxCoin = {0};

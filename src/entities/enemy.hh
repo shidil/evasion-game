@@ -3,6 +3,7 @@
 #include <raylib.h>
 
 #include "../game.hh"
+#include "../screens/screens.h"
 
 static EnemyType enemy_order[MAX_ENEMIES] = {
     EnemyType::SHOOTER, EnemyType::DASHER, EnemyType::DASHER, EnemyType::HOMING,
@@ -45,6 +46,7 @@ inline Enemy create_enemy(int total_spawned) {
       .shots_per_round = RIFLE_SHOTS_PER_ROUND,
       .reload_timer = 0,
       .trail_pos = {},
+      .rotation = 0,
   };
 }
 
@@ -116,6 +118,29 @@ inline std::vector<int> check_enemy_enemy_collisions(std::vector<Enemy> enemies)
   return out;
 }
 
+Color homer_palette[1][3] = {{RED, BLUE, WHITE}};
+
+void draw_homing_enemy(Enemy homer, Color color) {
+  auto origin = homer.position;
+
+  for (int i = 0; i < 3; i++) {
+    auto col = homer_palette[0][i];
+    Color fading_color = {col.r, col.g, col.b,
+                          static_cast<unsigned char>(col.a / ((i + 1) * 1.5))};
+    DrawCircleLines(origin.x, origin.y, HOMER_RADIUS - 10 + i, fading_color);
+    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 45 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 90 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 45 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 90 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 45 + homer.rotation, fading_color);
+    DrawPolyLines(origin, 4, HOMER_RADIUS - i, 90 + homer.rotation, fading_color);
+  }
+}
+
+void draw_shooter_enemy(Enemy shooter, Vector2 aim, Color color) {}
+
+void draw_dasher_enemy(Enemy dasher, Vector2 aim, Color color) {}
+
 /**
  * Render enemy, different enemies are rendered with different shapes/textures.
  * @param { Enemy } enemy actor to render
@@ -128,17 +153,28 @@ inline void draw_enemy(Enemy enemy, Vector2 aim) {
 
   switch (enemy.type) {
     case EnemyType::HOMING:
-      DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
+      draw_homing_enemy(enemy, color);
+
+      // draw a blast radius indicator as a circle based on current progress towars
+      // blast from reload timer calculated as a percentage function
       if (enemy.reload_timer > 0) {
-        // draw a blast radius indicator as a circle based on current progress towars
-        // blast from reload timer calculated as a percentage function
-        auto blast_radi =
-            (1 - (enemy.reload_timer / ENEMY_RELOAD_TIMER)) * HOMER_BLAST_RADIUS;
+        auto percentage = (1 - (enemy.reload_timer / ENEMY_RELOAD_TIMER));
+        auto blast_radi = percentage * HOMER_BLAST_RADIUS;
         DrawCircleLines(enemy.position.x, enemy.position.y, blast_radi, ORANGE);
       }
       break;
     case EnemyType::DASHER: {
       DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
+      if (enemy.state == ActorState::LIVE && enemy.velocity.x != 0 &&
+          enemy.velocity.y != 0) {
+        // Draw movement trail
+        for (int i = MAX_ENEMY_TRAIL - 1; i >= 0; i -= 1) {
+          auto trail_pos = enemy.trail_pos[i];
+          color.a /= 2;
+          auto width = 20 - MAX_ENEMY_TRAIL + i;
+          DrawCircleLines(trail_pos.x, trail_pos.y, width / 2, color);
+        }
+      }
       break;
     }
     case EnemyType::SHOOTER: {
@@ -150,7 +186,7 @@ inline void draw_enemy(Enemy enemy, Vector2 aim) {
       Vector2 v2 = {enemy.position.x + (width / 2), enemy.position.y};
       Vector2 v3 = {enemy.position.x, enemy.position.y + (height / 2)};
       Vector2 v4 = {enemy.position.x - (width / 2), enemy.position.y};
-      Vector2 vertices[5]  = {v1, v2, v3, v4, v1};
+      Vector2 vertices[5] = {v1, v2, v3, v4, v1};
 
       DrawLineStrip(vertices, 5, BLUE);
       break;
@@ -158,17 +194,6 @@ inline void draw_enemy(Enemy enemy, Vector2 aim) {
     default:
       DrawRectangleLines(enemy.position.x - 10, enemy.position.y - 10, 20, 20, color);
       break;
-  }
-
-  if (enemy.state == ActorState::LIVE && enemy.velocity.x != 0 && enemy.velocity.y != 0) {
-    // Draw movement trail
-    for (int i = MAX_ENEMY_TRAIL - 1; i >= 0; i -= 1) {
-      auto trail_pos = enemy.trail_pos[i];
-      color.a /= 2;
-      auto width = 20 - MAX_ENEMY_TRAIL + i;
-      DrawRectangleLines(trail_pos.x - (width / 2), trail_pos.y - (width / 2), width,
-                         width, color);
-    }
   }
 }
 

@@ -12,8 +12,8 @@ typedef enum GameScreen { LOGO = 0, TITLE, OPTIONS, GAMEPLAY, ENDING } GameScree
 extern GameScreen currentScreen;
 
 // Options screen global variables
-static int frames_counter;
-static int finishScreen;
+extern int frames_counter;
+extern int finishScreen;
 
 #ifdef __cplusplus
 extern "C" {  // Prevents name mangling of functions

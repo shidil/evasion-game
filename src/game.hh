@@ -39,8 +39,9 @@
 #define HOMING_VELOCITY 2
 #define ENEMY_RELOAD_TIMER 1.5f
 
-#define HOMER_BLAST_RADIUS 60
-#define HOMER_BLAST_TRIGGER_DISTANCE 50
+#define HOMER_RADIUS 20
+#define HOMER_BLAST_RADIUS HOMER_RADIUS * 3
+#define HOMER_BLAST_TRIGGER_DISTANCE HOMER_RADIUS * 2.5
 
 #define DASHER_BOUNDS \
   CLITERAL(Rectangle) { 50, 50, SCREEN_WIDTH - 100, SCREEN_HEIGHT - 100 }
@@ -101,6 +102,7 @@ typedef struct {
   int shots_per_round;
   float reload_timer;
   std::vector<Vector2> trail_pos;
+  float rotation;
 } Enemy;
 
 typedef struct {

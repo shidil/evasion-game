@@ -57,6 +57,7 @@ void ResetStar(Star *s);
 void reset_game_world() {
   score = 0;
   total_enemies_spawned = 0;
+  frames_counter = 0;
 
   // screen center
   Vector2 player_pos = {.x = SCREEN_WIDTH / 2, .y = SCREEN_HEIGHT - 200};
@@ -294,6 +295,11 @@ void UpdateGameplayScreen(void) {
             enemy->reload_timer = ENEMY_RELOAD_TIMER;
             enemy->trail_pos.clear();
           }
+
+          enemy->rotation++;
+          if (enemy->rotation > 360) {
+            enemy->rotation = 0;
+          }
           break;
         }
         default:
@@ -348,9 +354,9 @@ void DrawGameplayScreen(void) {
   //----------------------------------------------------------------------------------
 
   // debug dasher bounds/wall
-  DrawRectangleLinesEx(DASHER_BOUNDS, 1, { 100, 100, 100, 25 });
-  DrawRectangleLinesEx(DASHER_BOUNDS, 2, { 100, 100, 100, 10 });
-  DrawRectangleLinesEx(DASHER_BOUNDS, 3, { 100, 100, 100, 5 });
+  DrawRectangleLinesEx(DASHER_BOUNDS, 1, {100, 100, 100, 25});
+  DrawRectangleLinesEx(DASHER_BOUNDS, 2, {100, 100, 100, 10});
+  DrawRectangleLinesEx(DASHER_BOUNDS, 3, {100, 100, 100, 5});
 
   // bullets/objects
   for (int i = 0; i < game_world.bullets.size(); i++) {
@@ -386,9 +392,7 @@ void DrawGameplayScreen(void) {
 }
 
 // Gameplay Screen Unload logic
-void UnloadGameplayScreen(void) {
-
-}
+void UnloadGameplayScreen(void) {}
 
 // Gameplay Screen should finish?
 int FinishGameplayScreen(void) { return finishScreen; }
