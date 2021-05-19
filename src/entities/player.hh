@@ -24,10 +24,10 @@ inline void draw_player(Player player) {
   }
 
   // BeginShaderMode(shaders[PostproShader::FX_PREDATOR_VIEW]);
-  DrawPolyLines(player.position, 3, PLAYER_RADIUS - 10, player_rotation - 90, GRAY);
-  DrawPolyLines(player.position, 3, PLAYER_RADIUS - 9, player_rotation - 90, LIGHTGRAY);
-  DrawPolyLines(player.position, 3, PLAYER_RADIUS - 10, player_rotation - 45, GRAY);
-  DrawPolyLines(player.position, 3, PLAYER_RADIUS - 9, player_rotation - 45, LIGHTGRAY);
+  DrawPolyLines(player.position, 3, PLAYER_RADIUS - 10, 360 - player_rotation - 90, GRAY);
+  DrawPolyLines(player.position, 3, PLAYER_RADIUS - 9, 360 - player_rotation - 90, LIGHTGRAY);
+  DrawPolyLines(player.position, 3, PLAYER_RADIUS - 10, 360 - player_rotation - 45, GRAY);
+  DrawPolyLines(player.position, 3, PLAYER_RADIUS - 9, 360 - player_rotation - 45, LIGHTGRAY);
 
   if (player.shield > 0) {
     DrawPolyLines(player.position, 8, PLAYER_RADIUS + 2, player_rotation,

@@ -6,10 +6,11 @@
 #include "../screens/screens.h"
 
 static EnemyType enemy_order[MAX_ENEMIES] = {
-    EnemyType::DASHER, EnemyType::DASHER, EnemyType::DASHER, EnemyType::SHOOTER,
+    EnemyType::DASHER, EnemyType::DASHER, EnemyType::DASHER,  EnemyType::SHOOTER,
     EnemyType::HOMING, EnemyType::HOMING, EnemyType::SHOOTER, EnemyType::DASHER,
     EnemyType::HOMING, EnemyType::SHOOTER};
 static Color enemy_colors[3] = {DARKGREEN, BLUE, VIOLET};
+static Color enemy_telegraph_colors[2] = {{235, 80, 80, 100}, {255, 0, 0, 80}};
 
 namespace evs {
 inline Enemy create_enemy(int total_spawned) {
@@ -40,11 +41,11 @@ inline Enemy create_enemy(int total_spawned) {
       .color = enemy_colors[GetRandomValue(0, 2)],
       .velocity = {0, 0},
       .type = type,
-      .state = ActorState::LIVE,
+      .state = ActorState::SPAWNING,
       .fire_rate = BULLET_FIRE_RATE_MIN,
       .shots_fired = 0,
       .shots_per_round = RIFLE_SHOTS_PER_ROUND,
-      .reload_timer = 0,
+      .timer = ENEMY_SPAWN_TELEGRAPH,
       .trail_pos = {},
       .rotation = 0,
   };
@@ -75,7 +76,7 @@ inline std::vector<int> check_enemy_collisions(Player player,
 inline bool check_homer_blast_collisions(Player player, std::vector<Enemy> enemies) {
   for (int i = 0; i < enemies.size(); i++) {
     // skip non blast mode enemies. blast mode enemies will have state DESTRUCT
-    if (enemies[i].state != ActorState::DESTRUCT || enemies[i].reload_timer > 0) {
+    if (enemies[i].state != ActorState::DESTRUCT || enemies[i].timer > 0) {
       continue;
     }
 
@@ -151,14 +152,20 @@ inline void draw_enemy(Enemy enemy, Vector2 aim) {
     color = GetRandomValue(0, 1) ? RED : color;
   }
 
+  if (enemy.state == ActorState::SPAWNING) {
+    color = enemy_telegraph_colors[GetRandomValue(0, 1)];
+    DrawCircleLines(enemy.position.x, enemy.position.y, SHOOTER_SIZE, color);
+    return;
+  }
+
   switch (enemy.type) {
     case EnemyType::HOMING:
       draw_homing_enemy(enemy, color);
 
       // draw a blast radius indicator as a circle based on current progress towars
       // blast from reload timer calculated as a percentage function
-      if (enemy.reload_timer > 0) {
-        auto percentage = (1 - (enemy.reload_timer / ENEMY_RELOAD_TIMER));
+      if (enemy.timer > 0) {
+        auto percentage = (1 - (enemy.timer / ENEMY_timer));
         auto blast_radi = percentage * HOMER_BLAST_RADIUS;
         DrawCircleLines(enemy.position.x, enemy.position.y, blast_radi, ORANGE);
       }

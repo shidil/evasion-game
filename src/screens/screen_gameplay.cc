@@ -70,6 +70,7 @@ void reset_game_world() {
       .enemies = enemies,
       .bullets = bullets,
       .state = WorldState::RUNNING,
+      .wave_timer = 0.2f,
   };
 }
 
@@ -117,6 +118,10 @@ void UpdateGameplayScreen(void) {
   // basic score adding mechanism
   if (is_game_running) {
     score += 0.20f;
+    if (game_world.wave_timer > 0) {
+      game_world.wave_timer -= GetFrameTime();
+      game_world.wave_timer = std::max(game_world.wave_timer, 0.0f);
+    }
   }
 
   //----------------------------------------------------------------------------------
@@ -201,19 +206,23 @@ void UpdateGameplayScreen(void) {
   // Enemy behaviors
   //----------------------------------------------------------------------------------
   if (game_world.state == WorldState::RUNNING) {
+    int enemy_count_now = game_world.enemies.size();
+    bool should_spawn = game_world.wave_timer == 0;
+    // auto spawn_interval = FRAME_RATE * (enemy_count_now > 3 ? ENEMY_SPAWN_INTERVAL :
+    // 1);
+
     // Spawn new enemies if there are less enemies than MAX_ENEMIES
     // and after a set amount of interval time
-    int enemies_count = game_world.enemies.size();
-    auto spawn_interval = FRAME_RATE * (enemies_count > 3 ? ENEMY_SPAWN_INTERVAL : 1);
-
-    if (enemies_count < MAX_ENEMIES && frames_counter % spawn_interval == 0) {
-      game_world.enemies.push_back(evs::create_enemy(total_enemies_spawned));
-      enemies_count += 1;
+    if (enemy_count_now < MAX_ENEMIES && should_spawn) {
+      auto new_enemy = evs::create_enemy(total_enemies_spawned);
+      game_world.enemies.push_back(new_enemy);
+      enemy_count_now += 1;
       total_enemies_spawned += 1;
+      game_world.wave_timer = ENEMY_SPAWN_INTERVAL;
     }
 
     // update enemy, shoot, dash, follow
-    for (int i = 0; i < enemies_count; i++) {
+    for (int i = 0; i < enemy_count_now; i++) {
       Enemy *enemy = &game_world.enemies[i];
 
       // Dead enemies can't shoot or dash
@@ -222,10 +231,15 @@ void UpdateGameplayScreen(void) {
       }
 
       // Enemy reload timer decrement if it is active
-      if (enemy->reload_timer >= 0) {
-        enemy->reload_timer -= GetFrameTime();
+      if (enemy->timer >= 0) {
+        enemy->timer -= GetFrameTime();
 
-        if (enemy->reload_timer <= 0) {
+        if (enemy->timer <= 0) {
+          // spawning enemies go live
+          if (enemy->state == ActorState::SPAWNING) {
+            enemy->state = ActorState::LIVE;
+          }
+
           // shooters and dashers gets back to their business
           if (enemy->state == ActorState::RELOADING) {
             enemy->state = ActorState::LIVE;
@@ -240,7 +254,7 @@ void UpdateGameplayScreen(void) {
         }
       }
 
-      if (enemy->state == ActorState::RELOADING || enemy->state == ActorState::DESTRUCT) {
+      if (enemy->state != ActorState::LIVE) {
         continue;
       }
 
@@ -257,7 +271,7 @@ void UpdateGameplayScreen(void) {
             if (enemy->shots_fired >= enemy->shots_per_round) {
               enemy->shots_fired = 0;
               enemy->state = ActorState::RELOADING;
-              enemy->reload_timer = ENEMY_RELOAD_TIMER;
+              enemy->timer = ENEMY_timer;
             }
           }
 
@@ -289,7 +303,7 @@ void UpdateGameplayScreen(void) {
             enemy->velocity.x = 0;
             enemy->velocity.y = 0;
             enemy->state = ActorState::RELOADING;
-            enemy->reload_timer = ENEMY_RELOAD_TIMER;
+            enemy->timer = ENEMY_timer;
           }
           break;
         }
@@ -305,7 +319,7 @@ void UpdateGameplayScreen(void) {
               std::abs(Vector2Distance(game_world.player.position, enemy->position));
           if (distance <= HOMER_BLAST_TRIGGER_DISTANCE) {
             enemy->state = ActorState::DESTRUCT;
-            enemy->reload_timer = ENEMY_RELOAD_TIMER;
+            enemy->timer = ENEMY_timer;
             enemy->trail_pos.clear();
           }
 

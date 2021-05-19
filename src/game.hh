@@ -22,6 +22,7 @@
 #define ENEMY_SELF_KILL_BONUS 100
 
 #define ENEMY_SPAWN_INTERVAL 5
+#define ENEMY_SPAWN_TELEGRAPH 1
 
 #define BULLET_RADIUS 3
 #define BULLET_FIRE_RATE_MIN 20
@@ -37,7 +38,7 @@
 
 #define DASHER_VELOCITY 8
 #define HOMING_VELOCITY 2
-#define ENEMY_RELOAD_TIMER 1.5f
+#define ENEMY_timer 1.5f
 
 #define SHOOTER_SIZE 15
 #define DASHER_SIZE 20
@@ -78,6 +79,7 @@ enum ActorState {
   DEAD,
   RELOADING,
   DESTRUCT,
+  SPAWNING,
 };
 
 enum WorldState {
@@ -102,7 +104,7 @@ typedef struct {
   int fire_rate;
   int shots_fired;
   int shots_per_round;
-  float reload_timer;
+  float timer;
   std::vector<Vector2> trail_pos;
   float rotation;
 } Enemy;
@@ -119,6 +121,7 @@ typedef struct {
   std::vector<Enemy> enemies;
   std::vector<Bullet> bullets;
   WorldState state;
+  float wave_timer;
 } GameWorld;
 
 #endif  // EVASION_H
