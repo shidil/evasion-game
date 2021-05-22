@@ -45,6 +45,7 @@ static float score;
 static GameWorld game_world;
 static int total_enemies_spawned;
 static float high_score;
+static float dodge_counter;
 Star stars[MAX_STARS] = {0};
 
 //----------------------------------------------------------------------------------
@@ -58,6 +59,7 @@ void reset_game_world() {
   score = 0;
   total_enemies_spawned = 0;
   frames_counter = 0;
+  dodge_counter = 0;
 
   // screen center
   Vector2 player_pos = {.x = SCREEN_WIDTH / 2, .y = SCREEN_HEIGHT - 200};
@@ -143,6 +145,7 @@ void UpdateGameplayScreen(void) {
 
   // Tapping anywhere will teleport player to that position
   if (is_game_running && game_world.player.state == ActorState::LIVE && has_tapped) {
+    dodge_counter++;
     PlaySoundMulti(teleport_sfx);
     game_world.player.position.x = touch_position.x;
     game_world.player.position.y = touch_position.y;
@@ -454,11 +457,17 @@ void DrawGameplayScreen(void) {
     }
   }
 
-  // shield count
   if (game_world.state == WorldState::RUNNING) {
+    // shield count
     std::string shield_string = "SHIELD: ";
     shield_string.append(std::to_string(std::max(0, game_world.player.shield)));
     DrawText(shield_string.data(), 20, 10, 20, GRAY);
+
+    // tutorial text
+    if (dodge_counter < 3) {
+      DrawText("TAP ANYWHERE TO DODGE", SCREEN_WIDTH / 2 - 190, SCREEN_HEIGHT / 2 - 50,
+               28, {255, 255, 255, 42});
+    }
   }
 
   // Score
