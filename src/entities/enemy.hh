@@ -154,7 +154,11 @@ inline void draw_enemy(Enemy enemy, Vector2 aim) {
 
   if (enemy.state == ActorState::SPAWNING) {
     color = enemy_telegraph_colors[GetRandomValue(0, 1)];
-    DrawCircleLines(enemy.position.x, enemy.position.y, SHOOTER_SIZE, color);
+    color.a = 150;
+    for (int i = 0; i < 4; i++) {
+      color.a -= 50;
+      DrawCircleLines(enemy.position.x, enemy.position.y, SHOOTER_SIZE - (i * 3), color);
+    }
     return;
   }
 
