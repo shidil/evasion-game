@@ -207,14 +207,23 @@ void UpdateGameplayScreen(void) {
   //----------------------------------------------------------------------------------
   if (game_world.state == WorldState::RUNNING) {
     int enemy_count_now = game_world.enemies.size();
-    bool should_spawn = game_world.wave_timer == 0;
-    // auto spawn_interval = FRAME_RATE * (enemy_count_now > 3 ? ENEMY_SPAWN_INTERVAL :
-    // 1);
+    bool should_spawn = game_world.wave_timer == 0 && enemy_count_now < MAX_ENEMIES;
+    Enemy new_enemy;
+
+    if (should_spawn) {
+      new_enemy = evs::create_enemy(total_enemies_spawned);
+
+      for (int i = 0; i < enemy_count_now; i++) {
+        if (evs::distance_2d(game_world.enemies[i].position, new_enemy.position) <
+            ENEMY_SPAWN_MIN_DISTANCE) {
+          should_spawn = false;
+        }
+      }
+    }
 
     // Spawn new enemies if there are less enemies than MAX_ENEMIES
     // and after a set amount of interval time
-    if (enemy_count_now < MAX_ENEMIES && should_spawn) {
-      auto new_enemy = evs::create_enemy(total_enemies_spawned);
+    if (should_spawn) {
       game_world.enemies.push_back(new_enemy);
       enemy_count_now += 1;
       total_enemies_spawned += 1;
