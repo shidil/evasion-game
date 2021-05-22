@@ -465,7 +465,7 @@ void DrawGameplayScreen(void) {
   if (game_world.state != WorldState::PAUSED) {
     std::string score_text = "Score: ";
     score_text.append(TextFormat("%02.00f", score));
-    DrawText(score_text.data(), SCREEN_WIDTH - 120, 10, 20, ORANGE);
+    DrawText(score_text.data(), SCREEN_WIDTH - 120, 10, 20, {255, 165, 0, 200});
   }
 
   // DrawFPS(10, 10);
