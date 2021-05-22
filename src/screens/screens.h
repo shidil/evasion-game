@@ -14,6 +14,7 @@ extern GameScreen currentScreen;
 // Options screen global variables
 extern int frames_counter;
 extern int finishScreen;
+extern Camera2D camera;
 
 #ifdef __cplusplus
 extern "C" {  // Prevents name mangling of functions
