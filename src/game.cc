@@ -17,6 +17,8 @@ GameScreen currentScreen = GameScreen::LOGO;
 int frames_counter;
 int finishScreen;
 
+Camera2D camera = {0};
+
 Font font = {0};
 Music music = {0};
 Sound fxCoin = {0};
@@ -61,6 +63,9 @@ static void UpdateDrawFrame(void);  // Update and Draw one frame
 int main(void) {
   // Initialization (Note windowTitle is unused on Android)
   //---------------------------------------------------------
+  camera.rotation = 0.0f;
+  camera.zoom = 1.0f;
+
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   InitWindow(screenWidth, screenHeight, "Quantum Evasion");
 
@@ -71,6 +76,7 @@ int main(void) {
 
   // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex
   // load shaders
+  // shaders[0] = evs::load_fragment_shader("bloom");
 
   // music = evs::load_music("ambient.ogg");
   font = GetFontDefault();
@@ -87,7 +93,6 @@ int main(void) {
   SetSoundVolume(shoot_sfx, 0.00f);
   SetSoundVolume(hit_sfx, 0.70f);
   SetSoundVolume(boom_sfx, 1.0f);
-
 
   // SetMusicVolume(music, 1.0f);
   // PlayMusicStream(music);
@@ -332,6 +337,7 @@ static void UpdateDrawFrame(void) {
   // Draw
   //----------------------------------------------------------------------------------
   BeginDrawing();
+  BeginMode2D(camera);
 
   ClearBackground(RAYWHITE);
 
@@ -359,7 +365,7 @@ static void UpdateDrawFrame(void) {
   if (onTransition) DrawTransition();
 
   // DrawFPS(10, 10);
-
+  EndMode2D();
   EndDrawing();
   //----------------------------------------------------------------------------------
 }
