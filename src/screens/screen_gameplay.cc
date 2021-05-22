@@ -456,14 +456,14 @@ void DrawGameplayScreen(void) {
 
   // shield count
   if (game_world.state == WorldState::RUNNING) {
-    std::string shield_string = "Shields: ";
+    std::string shield_string = "SHIELD: ";
     shield_string.append(std::to_string(std::max(0, game_world.player.shield)));
     DrawText(shield_string.data(), 20, 10, 20, GRAY);
   }
 
   // Score
   if (game_world.state != WorldState::PAUSED) {
-    std::string score_text = "Score: ";
+    std::string score_text = "SCORE: ";
     score_text.append(TextFormat("%02.00f", score));
     DrawText(score_text.data(), SCREEN_WIDTH - 120, 10, 20, {255, 165, 0, 200});
   }
